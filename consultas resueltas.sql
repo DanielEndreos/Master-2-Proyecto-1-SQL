@@ -10,7 +10,7 @@ where f.rating = 'R';
 
 --3. Encuentra los nombres de los actores que tengan un “actor_idˮ entre 30 y 40.
 select 
-	a.*
+	concat(a.first_name, ' ', a.last_name)
 from actor a
 where a.actor_id between 30 and 40;
 
@@ -23,24 +23,27 @@ from film f
 where f.language_id = f.original_language_id;
 
 --5. Ordena las películas por duración de forma ascendente. 
-select *
+select 
+	*
 from film f
 order by f.length asc;
 
 --6. Encuentra el nombre y apellido de los actores que tengan ‘Allenʼ en su apellido.
-select concat(a.first_name ,' ', a.last_name)
+select 
+	concat(a.first_name ,' ', a.last_name)
 from actor a
-where lower(a.last_name) = lower('Allen');
+where a.last_name ILIKE 'Allen';
 
 --7. Encuentra la cantidad total de películas en cada clasificación de la tabla
 --   “filmˮ y muestra la clasificación junto con el recuento.
 select 
-	count(f.film_id) as pelicula, 
+	count(f.film_id) as qty_pelicula, 
 	f.rating as clasificacion
 from film f
-group by f.rating ;
+group by f.rating 
+order by qty_pelicula;
 
---8. Encuentra el título de todas las películas que son ‘PG13ʼ o tienen una
+--8. Encuentra el título de todas las películas que son ‘PG-13ʼ o tienen una
 --  duración mayor a 3 horas en la tabla film.
 select 
 	f.title,
@@ -51,25 +54,30 @@ where f.rating = 'PG-13' or f.length > 3*60
 order by f.rating asc, f.length asc;
 
 --9. Encuentra la variabilidad de lo que costaría reemplazar las películas.
-select variance(f.replacement_cost)
+select 
+	variance(f.replacement_cost)
 from film f; 
 
 --10 Encuentra la mayor y menor duración de una película de nuestra BBDD.
-select 
-	max(f.length) as mayor_duracion, 
-	min(f.length) as menor_duracion
+select  
+	min(f.length) as menor_duracion,
+	max(f.length) as mayor_duracion
 from film f;
 
 --11. Encuentra lo que costó el antepenúltimo alquiler ordenado por día.
-select p.amount, p.payment_date 
+select 
+	p.amount, 
+	p.payment_date 
 from payment p 
 order by p.payment_date desc
-offset 1
+offset 2
 limit 1;
 
 --12. Encuentra el título de las películas en la tabla “filmˮ que no sean ni ‘NC-
 --    17ʼ ni ‘Gʼ en cuanto a su clasificación. 
-select f.title, f.rating 
+select 
+	f.title as titulo, 
+	f.rating as clasificacion
 from film f 
 where f.rating not in ('NC-17', 'G')
 order by f.rating;

@@ -10,8 +10,9 @@ Sobre los ejercicios:
 
 ## **Ejercicio 2:** Muestra los nombres de todas las películas con una clasificación por edades de ‘Rʼ.
 
-1. He seleccionado los atributos que he considerado importantes (film.title, film. rating)
-2. He utilizado el parámetro WHERE para filtrar los resultados donde film.rating sea igual a 'R'.
+1. He seleccionado los atributos que he considerado importantes (*film.title*, *film.rating*)
+
+2. He utilizado WHERE para filtrar los resultados donde *film.rating* sea igual a 'R'.
 
 ```sql
 select 
@@ -23,63 +24,170 @@ where f.rating = 'R';
 
 ## **Ejercicio 3:** Encuentra los nombres de los actores que tengan un “actor_idˮ entre 30 y 40.
 
+1. Para mostrar el nombre del actor, he aprovechado para usar un CONCAT y unir el nombre con el apellido (*actor.first_name* y *actor.last_name*.)
 
+2. He utilizado WHERE para filtrar los resultados donde *actor.actor_id* esté entre 30 y 40, para ello he hecho uso de BETWEEN.
 
 ```sql
 select 
-	a.*
+	concat(a.first_name, ' ', a.last_name)
 from actor a
 where a.actor_id between 30 and 40;
 ```
 
 ## **Ejercicio 4:** Obtén las películas cuyo idioma coincide con el idioma original.
 
+1. He seleccionado los atributos que he considerado importantes (*film.title*, *film.language_id* y *film.original_language_id*.)
+
+2. He utilizado WHERE para filtrar los resultados donde *film.language_id* sea igual a *film.original_language_id*.
+
+**Nota:** Este ejercicio me volvió loco, no me daba ningún resultado y resulta que ninguna pelicula tiene valor en *film.original_language_id*, es decir, todos son *NULL*. 
+
 ```sql
+select 
+	f.title, 
+	f.language_id, 
+	f.original_language_id  
+from film f
+where f.language_id = f.original_language_id;
 ```
 
-## **Ejercicio 5:** Ordena las películas por duración de forma ascendente. 
+## **Ejercicio 5:** Ordena las películas por duración de forma ascendente.
+
+1. Selecciono todos los valores de las películas dentro de la tabla *film*.
+
+2. He utilizado ORDER BY con *film.length* y ASC.
 
 ```sql
+select 
+	*
+from film f
+order by f.length asc;
+
 ```
 
 ## **Ejercicio 6:** Encuentra el nombre y apellido de los actores que tengan ‘Allenʼ en su apellido.
 
+1. Selecciono nombre(*actor.first_name*) y apellido(*actor.last_name*) y los juntos con CONCAT.
+
+2. He utilizado WHERE para filtrar y buscar aquellos registros en los que incluyan en el apellido la palabra 'Allen'. Como las búsquedas son **CASE SENSITIVE** he utilizado ILIKE en vez de LIKE para hacer un buen filtrado. Otra forma sería usar el like o un == y hacer un lower() a ambos parametros. Por ejemplo: *where lower(a.last_name) = lower('Allen')*
+
 ```sql
+select 
+	concat(a.first_name ,' ', a.last_name)
+from actor a
+where a.last_name ILIKE 'Allen';
 ```
 
 ## **Ejercicio 7:** Encuentra la cantidad total de películas en cada clasificación de la tabla “filmˮ y muestra la clasificación junto con el recuento.
 
+1. He contado la cantidad de peliculas que hay a nivel de registros *film.film_id* mediante COUNT() y lo he "renombrado" como pelicula. También he mostrado el tipo de clasificación.
+
+2. He agrupado la cantidad de peliculas contadas por el tipo de clasificación *film.rating*.
+
+3. (extra) He ordenado de manera ascendente a través de ORDER BY las tablas utilizando *qty_pelicula* como referencia.
+
+
 ```sql
+select 
+	count(f.film_id) as qty_pelicula, 
+	f.rating as clasificacion
+from film f
+group by f.rating 
+order by qty_pelicula;
 ```
 
-## **Ejercicio 8:** Encuentra el título de todas las películas que son ‘PG13ʼ o tienen una duración mayor a 3 horas en la tabla film.
+## **Ejercicio 8:** Encuentra el título de todas las películas que son ‘PG-13ʼ o tienen una duración mayor a 3 horas en la tabla film.
+
+1. Muestro 3 columnas que considero importantes (*film.title*, *film.rating* y *film.length*).
+
+2. He utilizado un filtrado donde considero las dos opciones:
+	1. Son 'PG-13'		-> *film.rating = 'PG-13'*
+	2. Duración > 3 h 	-> *film.length > 3*60*
+
+	**Nota**: He realizado una operación por facilitarme el código, si hubiese especificado el tiempo en minutos, habría puesto los 180 directamente.
+
+3. Posteriormente, he aprovechado para ordenar la tabla, primeramente por la clasificación y posteriormente por la duración.
+
 
 ```sql
+select 
+	f.title as titulo,
+	f.rating as clasificacion,
+	f.length as duracion
+from film f
+where f.rating = 'PG-13' or f.length > 3*60
+order by f.rating asc, f.length asc;
 ```
 
 ## **Ejercicio 9:** Encuentra la variabilidad de lo que costaría reemplazar las películas.
 
+1. Creo que es lo que se solicita, sin más.
+
 ```sql
+select 
+	variance(f.replacement_cost)
+from film f; 
 ```
 
 ## **Ejercicio 10:** Encuentra la mayor y menor duración de una película de nuestra BBDD.
 
+1. He utilizado las funciones MIN() y MAX() para determinar cual es la duración mínima y máxima dentro de todas las peliculas.
+
 ```sql
+select 
+	min(f.length) as menor_duracion,
+	max(f.length) as mayor_duracion 
+from film f;
 ```
 
 ## **Ejercicio 11:** Encuentra lo que costó el antepenúltimo alquiler ordenado por día.
 
+1. Muestro los datos *payment.amount* y *payment_date* para mostrar el coste y el día.
+
+2. He ordenador los datos resultantes mediante ORDER BY a través de *payment.payment_date* de manera descendente con DESC.
+
+3. Para conseguir el antepenúltimo registro, he usado un OFFSET con valor '2' y he limitado los resultados a '1' registro con LIMIT.
+
 ```sql
+select 
+	p.amount, 
+	p.payment_date 
+from payment p 
+order by p.payment_date desc
+offset 2
+limit 1;
 ```
 
 ## **Ejercicio 12:** Encuentra el título de las películas en la tabla “filmˮ que no sean ni ‘NC-17ʼ ni ‘Gʼ en cuanto a su clasificación.
 
+1. He realizado mi consulta sobre *film.title* y *film.rating*
+
+2. He filtrado mediante WHERE los casos que no se incluyan en una lista mediante NOT IN.
+
+3. (extra) He ordenador los resultados con ORDER BY a través de *film.rating*
+
 ```sql
+select 
+	f.title as titulo, 
+	f.rating as clasificacion
+from film f 
+where f.rating not in ('NC-17', 'G')
+order by f.rating;
 ```
 
 ## **Ejercicio 13:** Encuentra el promedio de duración de las películas para cada clasificación de la tabla film y muestra la clasificación junto con el promedio de duración.
 
+1. He realizado la consulta sobre la clasificacion *film.rating* y la longitud *film.length*, para la longitud, al buscar el promedio, he utilizado AVG para conseguirlo, y como el resultado tenía demasiados dígitos, he utilizado un ROUND() con 2 digitios max.
+
+2. He agrupado los resultados por la clasificación *film.rating*.
+
 ```sql
+select 
+	f.rating as clasificacion,
+	round(avg(f.length), 2) as promedio_duracion
+from film f 
+group by f.rating;
 ```
 
 ## **Ejercicio 14:** Encuentra el título de todas las películas que tengan una duración mayor a 180 minutos.
