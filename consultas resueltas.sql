@@ -101,11 +101,13 @@ where f.length > 180
 order by f.length;
 
 --15. ¿Cuánto dinero ha generado en total la empresa?
-select sum(p.amount)
+select 
+	sum(p.amount)
 from payment p;
 
 --16. Muestra los 10 clientes con mayor valor de id.
-select *
+select 
+	*
 from customer c 
 order by c.customer_id desc
 limit 10;
@@ -120,10 +122,11 @@ inner join film_actor fa
 	on a.actor_id = fa.actor_id
 inner join film f 
 	on fa.film_id = f.film_id
-where lower(f.title) = lower('Egg Igby');
+where f.title ILIKE 'Egg Igby';
 
 --18. Selecciona todos los nombres de las películas únicos.
-select distinct title as film_unico
+select 
+	distinct title as film_unico
 from film f
 order by f.title ;
 
@@ -132,33 +135,34 @@ order by f.title ;
 select 
 	f.title as titulo,
 	f.length as duracion,
-	c."name" as categoria
+	c.name as categoria
 from film f
 inner join film_category fc 
 	on fc.film_id = f.film_id 
 inner join category c 
 	on fc.category_id = c.category_id 
-where f.length > 180 and lower(c."name") = lower('Comedy')
+where f.length > 180 and c.name ILIKE 'Comedy'
 order by f.length;
 
 --20. Encuentra las categorías de películas que tienen un promedio de
 --	  duración superior a 110 minutos y muestra el nombre de la categoría
 --	  junto con el promedio de duración.
 select
-	count(f.length) as cantidad,
+	count(f.film_id) as cantidad,
 	round(avg(f.length),2) as promedio_duracion,
-	c."name" as categoria
+	c.name as categoria
 from film f
 inner join film_category fc 
 	on f.film_id = fc.film_id
 inner join category c 
 	on fc.category_id = c.category_id
-group by c."name"
+group by c.name
 having avg(f.length) > 110
 order by cantidad;
 
 --21. ¿Cuál es la media de duración del alquiler de las películas?
-select avg(f.rental_duration) 
+select
+	avg(f.rental_duration) 
 from film f;
 
 --22. Crea una columna con el nombre y apellidos de todos los actores y
@@ -177,25 +181,28 @@ group by DATE(r.rental_date)
 order by num_alquileres desc;
 
 --24. Encuentra las películas con una duración superior al promedio.
-select *
+select 
+	*
 from film f
-where f.length > (select avg(length) from film);
+where f.length > (	select 
+						avg(length) 
+					from film);
 
 --25. Averigua el número de alquileres registrados por mes.
-SELECT  
-    CONCAT(EXTRACT(YEAR FROM r.rental_date), '-', EXTRACT(MONTH FROM r.rental_date)) AS anio_mes,
-    COUNT(*) AS num_alquileres
-FROM rental r
-GROUP BY anio_mes
-ORDER BY anio_mes;
+select  
+    concat(extract(year from r.rental_date), '-', extract(month from r.rental_date)) as anio_mes,
+    count(r.rental_id) as num_alquileres
+from rental r
+group by anio_mes
+order by anio_mes;
 
 --26. Encuentra el promedio, la desviación estándar y varianza del total
 --    pagado.
-	select
-		round(avg(p.amount) ,2) as promedio_total,
-		round(stddev(p.amount) ,2) as desviacion_total,
-		round(variance(p.amount) ,2) as varianza_total
-		from payment p;
+select
+	round(avg(p.amount) ,2) as promedio_total,
+	round(stddev(p.amount) ,2) as desviacion_total,
+	round(variance(p.amount) ,2) as varianza_total
+from payment p;
 
 --27. ¿Qué películas se alquilan por encima del precio medio?
 select
@@ -206,8 +213,10 @@ inner join inventory i
 	on f.film_id = i.film_id
 inner join rental r 
 	on i.inventory_id = r.inventory_id
-where f.rental_rate > (select avg(f.rental_rate) from film f)
-order by precio_medio;
+where f.rental_rate > (	select 
+							avg(rental_rate) 
+						from film )
+order by precio_medio asc;
 
 --28. Muestra el id de los actores que hayan participado en más de 40
 --    películas.
@@ -284,62 +293,65 @@ inner join rental r
 --34. Encuentra los 5 clientes que más dinero se hayan gastado con nosotros.
 select 
 	concat(c.first_name, ' ', c.last_name ) as cliente_fav,
-	sum(amount) as dinero_gastado
+	sum(p.amount) as dinero_gastado
 from customer c 
 inner join rental r 
-on c.customer_id = r.customer_id
+	on c.customer_id = r.customer_id
 inner join payment p 
-on c.customer_id = p.customer_id
+	on c.customer_id = p.customer_id
 group by c.customer_id 
 order by dinero_gastado desc
 limit 5;
 
 --35. Selecciona todos los actores cuyo primer nombre es 'Johnny'.
-select concat (a.first_name, ' ', a.last_name ) as Actor
+select 
+	concat (a.first_name, ' ', a.last_name ) as Actor
 from actor a
-where lower(a.first_name) = lower('Johnny'); 
+where a.first_name ilike 'Johnny';  
 
 --36. Renombra la columna “first_nameˮ como Nombre y “last_nameˮ como
 --	  Apellido.
 select 
 	a.first_name as nombre,
 	a.last_name as apellido
-from actor a
+from actor a;
 
 --37. Encuentra el ID del actor más bajo y más alto en la tabla actor.
 select
 	min(a.actor_id) as id_bajo,
 	max(a.actor_id) as id_alto
-from actor a
+from actor a;
 
 --38. Cuenta cuántos actores hay en la tabla “actorˮ.
 select
-	count(a.actor_id)
+	count(a.actor_id) as num_actores
 from actor a;
 
 --39. Selecciona todos los actores y ordénalos por apellido en orden ascendente. 
-select *
+select 
+	*
 from actor a
 order by a.last_name asc;
 
 --40. Selecciona las primeras 5 películas de la tabla “filmˮ. 
-select *
+select 
+	*
 from film f 
 limit 5;
 
 --41. Agrupa los actores por su nombre y cuenta cuántos actores tienen el
 --    mismo nombre. ¿Cuál es el nombre más repetido? 
 select 
-a.first_name,
-count(a.first_name) as qty
+	a.first_name,
+	count(a.first_name) as qty
 from actor a
 group by a.first_name
 order by qty desc;
 
 --42. Encuentra todos los alquileres y los nombres de los clientes que los realizaron.
 select
- r.rental_id,
- concat(c.first_name, ' ', c.last_name) as Cliente 
+	r.rental_id,
+	concat(c.first_name, ' ', c.last_name) as Cliente 
 from rental r 
 inner join customer c 
 	on r.rental_id = c.customer_id;
@@ -355,18 +367,19 @@ order by c.customer_id, r.rental_id;
 
 --44. Realiza un CROSS JOIN entre las tablas film y category. ¿Aporta valor
 --    esta consulta? ¿Por qué? Deja después de la consulta la contestación.
-select *
+select 
+	*
 from film f 
 cross join category c;
-/*   Yo pienso que no aporta valor, una pelicula no puede tener todos las categorías.
-     Un cross join podría servir por ejemplo, para ver las posibilidades de un numero de loteria de navidad por ejemplo....
-     donde creas 5 tablas con el valor de cada numero y haces el cross join de las 5 tablas dandote las posibilidades que hay... 
-     (mejor no hacer... depresion)
+/*  Yo pienso que no aporta valor, una pelicula no puede tener todos las categorías.
+
+Un cross join podría servir por ejemplo, para ver las posibilidades de un numero de loteria de navidad, es decir, donde creas 5 tablas con el valor de cada numero y haces el cross join de las 5 tablas dandote las posibilidades que hay... 
+(mejor no hacer... que depresion)
 */
 
 --45. Encuentra los actores que han participado en películas de la categoría 'Action'.
 select
- a.*
+ 	a.*
  from actor a 
  inner join film_actor fa 
  	on a.actor_id = fa.film_id
@@ -376,7 +389,7 @@ select
  	on f.film_id = fc.film_id
  inner join category c 
  	on fc.category_id = c.category_id
- where c."name" = 'Action'
+ where c.name ilike 'Action'
  group by a.actor_id;
 
 --46. Encuentra todos los actores que no han participado en películas.
@@ -384,7 +397,7 @@ select
 	a.*
 from actor a
 left join film_actor fa 
-on a.actor_id = fa.actor_id
+	on a.actor_id = fa.actor_id
 where fa.film_id is null
 group by a.actor_id ;
 
@@ -394,7 +407,7 @@ select
 	count(fa.film_id) as peliculas
 from actor a 
 inner join film_actor fa 
-on a.actor_id = fa.actor_id
+	on a.actor_id = fa.actor_id
 group by a.actor_id
 order by a.actor_id; 
 
@@ -406,41 +419,43 @@ select
 	count(fa.film_id)
 from actor a
 inner join film_actor fa 
-on a.actor_id = fa.actor_id
+	on a.actor_id = fa.actor_id
 group by a.actor_id
 order by a.actor_id;
 
 --49. Calcula el número total de alquileres realizados por cada cliente.
-select
-c.first_name as Cliente,
-count(r.rental_id) as alquileres
-from rental r
-inner join customer c 
-on r.customer_id = c.customer_id
+select 
+    concat(c.first_name, ' ', c.last_name) as cliente,
+    count(r.rental_id) as num_alquileres
+from customer c
+left join rental r 
+    on c.customer_id = r.customer_id
 group by c.customer_id
-order by alquileres; 
+order by num_alquileres desc;
 
 --50. Calcula la duración total de las películas en la categoría 'Action'.
 select
-	count(f.length) as duracion_total
+	c.name as categoria,
+	sum(f.length) as duracion_total
 from film f 
 inner join film_category fc 
 	on f.film_id = fc.film_id
 inner join category c 
 	on fc.category_id = c.category_id 
-where c."name" = 'Action';
+where c.name ilike 'Action'
+group by categoria;
 
 --51. Crea una tabla temporal llamada “cliente_rentas_temporalˮ para
 --	  almacenar el total de alquileres por cliente. 
 create temporary table cliente_rentas_temporal as
-select
-	count(r.rental_id) as alquileres,
-	c.first_name as Cliente
-from rental r 
-right join customer c 
-	on r.customer_id = c.customer_id
-group by c.customer_id 
-order by alquileres;
+select 
+    concat(c.first_name, ' ', c.last_name) as cliente,
+    count(r.rental_id) as num_alquileres
+from customer c
+left join rental r 
+    on c.customer_id = r.customer_id
+group by c.customer_id
+order by num_alquileres desc;
 
 --52. Crea una tabla temporal llamada “peliculas_alquiladasˮ que almacene las
 -- 	  películas que han sido alquiladas al menos 10 veces.
@@ -461,16 +476,16 @@ order by qty_rented;
 -- 	  con el nombre ‘Tammy Sandersʼ y que aún no se han devuelto. Ordena
 --    los resultados alfabéticamente por título de película.		
 select
-f.title
+	f.title
 from film f
 inner join inventory i 
-on f.film_id = i.film_id
+	on f.film_id = i.film_id
 inner join rental r 
-on i.inventory_id = r.inventory_id
+	on i.inventory_id = r.inventory_id
 inner join customer c 
-on r.customer_id = c.customer_id
+	on r.customer_id = c.customer_id
 where 
-	lower(concat(c.first_name, ' ', c.last_name)) = lower('Tammy Sanders') 
+	(concat(c.first_name, ' ', c.last_name) ILIKE 'Tammy Sanders') 
 	and r.return_date is null
 order by f.title;
 
@@ -488,7 +503,7 @@ inner join film_category fc
 	on f.film_id = fc.film_id
 inner join category c 
 	on fc.category_id = c.category_id
-where c."name" = 'Sci-Fi'
+where c.name ilike 'Sci-Fi'
 group by a.actor_id
 order by a.last_name;
 
@@ -518,8 +533,7 @@ where r.rental_date > (select
 					   	  on r2.inventory_id = i2.inventory_id 
 					   inner join film f2 
 						  on i2.film_id = f2.film_id 
-					   where lower(f2.title) = lower('Spartacus Cheaper') 
-				       )
+					   where f2.title ilike 'Spartacus Cheaper') 
 group by a.actor_id
 order by a.last_name;
 		
@@ -557,10 +571,10 @@ select
 	f.title 
 from film f 
 inner join film_category fc 
-on f.film_id = fc.film_id 
+	on f.film_id = fc.film_id 
 inner join category c 
-on fc.category_id = c.category_id
-where lower(c."name") = lower('Animation');
+	on fc.category_id = c.category_id
+where c.name ilike 'Animation';
 
 --59. Encuentra los nombres de las películas que tienen la misma duración
 -- 	  que la película con el título ‘Dancing Feverʼ. Ordena los resultados
@@ -569,10 +583,10 @@ select
 	f.title,
 	f.length 
 from film f 
-where f.length = (select
-				  	f2.length 
-			      from film f2 
-			      where lower(f2.title) = lower('Dancing Fever'));
+where f.length = (	select
+						f2.length 
+			      	from film f2 
+			      	where f2.title ilike 'Dancing Fever');
 
 --60. Encuentra los nombres de los clientes que han alquilado al menos 7
 -- 	  películas distintas. Ordena los resultados alfabéticamente por apellido.
@@ -592,7 +606,7 @@ order by c.last_name;
 --    muestra el nombre de la categoría junto con el recuento de alquileres.
 select
 	count(r.rental_id) as qty_rented,
-	c."name" as categoria
+	c.name as categoria
 from rental r 
 inner join inventory i 
 	on r.inventory_id = i.inventory_id
@@ -602,19 +616,19 @@ inner join film_category fc
 	on f.film_id = fc.film_id
 inner join category c 
 	on fc.category_id = c.category_id
-group by c."name" 
+group by c.name 
 order by qty_rented; 
 	
 --62. Encuentra el número de películas por categoría estrenadas en 2006.
 select
 	count(f.film_id) as peliculas,
-	c."name" as categorias
+	c.name as categorias
 from film f 
 inner join film_category fc 
 	on f.film_id = fc.film_id
 inner join category c 
 	on fc.category_id = c.category_id  
-group by f.release_year, c."name"  
+group by f.release_year, c.name 
 having f.release_year = '2006'
 order by count(f.film_id);
 
@@ -634,7 +648,7 @@ select
 	count(r.rental_id) as qty_rental
 from rental r 
 right join customer c 
-on r.customer_id = c.customer_id
+	on r.customer_id = c.customer_id
 group by c.customer_id
 order by c.customer_id;
 
