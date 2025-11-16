@@ -10,7 +10,7 @@ where f.rating = 'R';
 
 --3. Encuentra los nombres de los actores que tengan un “actor_idˮ entre 30 y 40.
 select 
-	*
+	a.*
 from actor a
 where a.actor_id between 30 and 40;
 
